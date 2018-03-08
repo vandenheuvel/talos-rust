@@ -1,0 +1,6 @@
+[package]
+name = "talos"
+version = "0.0.1"
+authors = ["Bram van den Heuvel <b.vandenheuvel@student.tudelft.nl>"]
+
+[dependencies]
