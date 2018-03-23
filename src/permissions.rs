@@ -19,7 +19,7 @@ impl PermissionTree {
                 });
             }
             roots.get_mut(&rule.role_name).unwrap().add_permission_rule(rule.permission,
-                                                                       rule.resource.into_iter());
+                                                                        rule.resource.into_iter());
         }
         PermissionTree {
             root_nodes: roots,
@@ -51,7 +51,7 @@ pub trait Node {
     fn add_permission_rule(&mut self,
                            parsed_permission: ParsedPermission,
                            mut resource: IntoIter<PermissionKind>) {
-        // TODO: Reuse nodes if they already exist
+        // TODO: Reuse nodes if they already exist, don't duplicate
         let at_deepest_level = resource.len() == 1;
         let permission = if at_deepest_level {
             match parsed_permission {
@@ -197,7 +197,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_permission_tree() {
+    fn test_single_rule() {
         let role_name = "X".to_string();
         let tree = PermissionTree::from_rules(vec![PermissionRule {
             permission: ParsedPermission::Allow,
@@ -207,6 +207,24 @@ mod test {
 
         assert!(tree.has_permission_for(vec![role_name.clone()],
                                         vec!["a".to_string()],
+                                        &Environment {
+                                            variables: HashMap::new(),
+                                            sets: HashMap::new(),
+                                        }));
+    }
+
+    #[test]
+    fn test_multiple_rules() {
+        let role_name = "X".to_string();
+        let tree = PermissionTree::from_rules(vec![PermissionRule {
+            permission: ParsedPermission::Deny,
+            role_name: role_name.clone(),
+            resource: vec![PermissionKind::Literal("a".to_string()),
+                           PermissionKind::Literal("b".to_string())],
+        }]);
+
+        assert!(!tree.has_permission_for(vec![role_name.clone()],
+                                        vec!["a".to_string(), "b".to_string()],
                                         &Environment {
                                             variables: HashMap::new(),
                                             sets: HashMap::new(),

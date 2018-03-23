@@ -16,8 +16,8 @@ impl AccessChecker {
             sets: HashMap::new(),
         }, }
     }
-    fn has_permission_for(&self, name: RoleName, resource: Vec<String>) -> bool {
-        let names = self.role_graph.get_group_names(name);
+    fn has_permission_for(&self, name: &RoleName, resource: Vec<String>) -> bool {
+        let names = self.role_graph.get_group_names(&name);
         self.permission_tree.has_permission_for(names, resource, &self.environment)
     }
     pub fn set_environment(&mut self, environment: Environment) { self.environment = environment; }
